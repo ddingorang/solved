@@ -1,0 +1,2 @@
+-- 코드를 입력하세요
+SELECT concat('/home/grep/src/', uf.board_id, '/', uf.file_id, uf.file_name, uf.file_ext) as file_path from used_goods_board ub inner join used_goods_file uf on ub.board_id = uf.boarD_id where views = (select max(views) from used_goods_board) order by uf.file_id desc;
