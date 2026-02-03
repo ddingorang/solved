@@ -14,16 +14,6 @@ public class Main {
     static int tmpf = -1;
     static int tmpr = -1;
 
-    static void update(int f, int r) {
-        int comb = Math.abs(l.get(f) + l.get(r));
-        if(comb < min) {
-            tmpf = front;
-            tmpr = rear;
-            min = comb; // 최소값 갱신
-
-        }
-    }
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = null;
