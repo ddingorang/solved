@@ -1,89 +1,56 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.StringTokenizer;
 
-public class Solution {
-    static int[][] magnets; // 자석들의 극성 정보
-    static int[] rotatedir; // 각 자석이 회전할 방향 저장
-
-    // 직접 회전시키기
-    static void rotate(int[] magnet, int dir) {
-        if (dir == 1) { // 시계 방향
-            int tmp = magnet[7];
-            for (int i = 7; i > 0; i--) magnet[i] = magnet[i - 1];
-            magnet[0] = tmp;
-        } else if (dir == -1) { // 반시계 방향
-            int tmp = magnet[0];
-            for (int i = 0; i < 7; i++) magnet[i] = magnet[i + 1];
-            magnet[7] = tmp;
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringBuilder sb = new StringBuilder();
-        int tc = Integer.parseInt(br.readLine());
-        StringTokenizer st = null;
-
-        for(int i=0; i<tc; i++) {
-            int k = Integer.parseInt(br.readLine());
-
-            magnets = new int[5][];
-            for(int mgnts = 0; mgnts < 5; mgnts++) {
-                magnets[mgnts] = new int[8];
-            }
-
-            // 자석 극성 정보 입력받고
-            for(int rows=1; rows<5; rows++) {
-                st = new StringTokenizer(br.readLine());
-                for(int cols = 0; cols < 8; cols++) {
-                    magnets[rows][cols] = Integer.parseInt(st.nextToken());
-                }
-            }
-            
-            // 각 명령 실행
-            for(int tsk=0; tsk<k; tsk++) {
-                st = new StringTokenizer(br.readLine());
-                int whichmagnet = Integer.parseInt(st.nextToken());
-                int whichway = Integer.parseInt(st.nextToken());
-                rotatedir = new int[5];
-                rotatedir[whichmagnet] = whichway;
-
-                // 앞 자석으로 전파
-                for(int mgn = whichmagnet; mgn>1; mgn--) { 
-                    if(magnets[mgn][6] != magnets[mgn-1][2]) { // 마주한 부분 극성이 다른가 체크
-                        rotatedir[mgn-1] = (-1)*rotatedir[mgn];
-                    }
-                    else break; // 전파 중단
-                }
-
-                // 뒤 자석으로 전파
-                for(int mgn2 = whichmagnet; mgn2<4; mgn2++) { 
-                    if(magnets[mgn2][2] != magnets[mgn2+1][6]) { // 마주한 부분 극성이 다른가 체크
-                        rotatedir[mgn2+1] = (-1)*rotatedir[mgn2];
-                    }
-                    else break; // 전파 중단
-                }
-
-                // 회전 정보대로 회전시키기
-                for(int ridx = 1; ridx < 5; ridx++) {
-                    if(rotatedir[ridx] != 0) {
-                        rotate(magnets[ridx], rotatedir[ridx]);
-                    }
-                }
-
-            }
-            
-            // 점수 계산
-            int scoresum = 0;
-            for(int midx = 1; midx < 5; midx ++) {
-                scoresum += magnets[midx][0] * (Math.pow(2, midx-1));
-            }
+def rotate(arr, direction):
+    if direction == 1:  # 시계 방향
+        # 마지막 원소를 맨 앞으로 보내기
+        arr[:] = [arr[7]] + arr[:7]
+    elif direction == -1:  # 반시계 방향
+        # 첫 번째 원소를 맨 뒤로 보내기
+        arr[:] = arr[1:] + [arr[0]]
 
 
-            sb.append("#").append(i+1).append(" ").append(scoresum).append("\n");
-        }
+t_str = input().strip()
+if not t_str: exit()
+t = int(t_str)
+result = []
 
-        System.out.println(sb);
-    }
-}
+for tc in range(1, t + 1):
+    k = int(input().strip())
+    # 1번~4번 자석을 인덱스 1~4에 맞추기 위해 앞에 빈 리스트 추가
+    magnets = [[]] + [list(map(int, input().split())) for _ in range(4)]
+
+    for _ in range(k):
+        mag_idx, direction = map(int, input().split())
+
+        # 이번 회전 명령에서 각 자석이 돌 방향을 저장 (0으로 초기화)
+        move_dir = [0] * 5
+        move_dir[mag_idx] = direction
+
+        # 1. 왼쪽 방향으로 전파 확인
+        for i in range(mag_idx, 1, -1):
+            if magnets[i][6] != magnets[i - 1][2]:
+                move_dir[i - 1] = -move_dir[i]
+            else:
+                break  # 극이 같으면 전파 중단
+
+        # 2. 오른쪽 방향으로 전파 확인
+        for i in range(mag_idx, 4):
+            if magnets[i][2] != magnets[i + 1][6]:
+                move_dir[i + 1] = -move_dir[i]
+            else:
+                break  # 극이 같으면 전파 중단
+
+        # 3. 결정된 방향대로 자석들 회전
+        for i in range(1, 5):
+            if move_dir[i] != 0:
+                rotate(magnets[i], move_dir[i])
+
+    # 점수 합계 계산
+    scoresum = 0
+    for i in range(1, 5):
+        if magnets[i][0] == 1:  # S극인 경우 점수 획득
+            scoresum += (2 ** (i - 1))
+
+    result.append(scoresum)
+
+for idx, e in enumerate(result):
+    print(f"#{idx+1} {e}")
