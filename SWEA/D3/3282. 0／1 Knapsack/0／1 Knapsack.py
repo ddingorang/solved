@@ -1,23 +1,41 @@
+import java.util.Scanner;
 
-T = int(input())
-result = []
+public class Solution {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int T = sc.nextInt(); // 테스트 케이스 개수
 
-# 여러개의 테스트 케이스가 주어지므로, 각각을 처리합니다.
-for test_case in range(1, T + 1):
-    # 입력 받기
-    N, K = map(int, input().split())
-    items = [tuple(map(int, input().split())) for _ in range(N)]
+        for (int tc = 1; tc <= T; tc++) {
+            int N = sc.nextInt(); // 물건의 개수 (최대 100)
+            int K = sc.nextInt(); // 배낭의 최대 부피 (최대 1000)
 
-    # DP 배열 초기화: dp[w]는 "부피 w까지 담을 수 있을 때의 최대 가치"
-    dp = [0] * (K + 1)
+            int[] weights = new int[N + 1];
+            int[] values = new int[N + 1];
 
-    # 각 아이템을 순회하며 DP 배열 갱신
-    for v, c in items:
-        for w in range(K, v - 1, -1):  # 뒤에서부터 순회 (중복 선택 방지)
-            dp[w] = max(dp[w], dp[w - v] + c)
+            for (int i = 1; i <= N; i++) {
+                weights[i] = sc.nextInt();
+                values[i] = sc.nextInt();
+            }
 
-    # 결과: 최대 가치
-    result.append(dp[K])
+            // 1. DP 배열 생성 (N+1 x K+1)
+            int[][] dp = new int[N + 1][K + 1];
 
-for index, r in enumerate(result):
-    print(f'#{index+1} {r}')
+            // 2. DP 테이블 채우기
+            for (int i = 1; i <= N; i++) {
+                for (int w = 1; w <= K; w++) {
+                    if (weights[i] <= w) {
+                        // 현재 물건을 넣을 수 있는 경우:
+                        // '안 넣었을 때(위쪽 칸)' vs '넣었을 때(가치 + 남은 무게의 최적값)'
+                        dp[i][w] = Math.max(dp[i - 1][w], values[i] + dp[i - 1][w - weights[i]]);
+                    } else {
+                        // 현재 물건이 너무 무거운 경우: 이전 결과 그대로 가져옴
+                        dp[i][w] = dp[i - 1][w];
+                    }
+                }
+            }
+
+            System.out.println("#" + tc + " " + dp[N][K]);
+        }
+        sc.close();
+    }
+}
